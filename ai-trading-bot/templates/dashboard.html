@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Trading Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            margin-top: 20px;
+        }
+
+        table {
+            margin: auto;
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 75%;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #333;
+        }
+
+        th {
+            background: #1e293b;
+        }
+
+        tr:nth-child(even) {
+            background: #1e293b;
+        }
+
+        .buy { color: lime; font-weight: bold; }
+        .sell { color: red; font-weight: bold; }
+
+        .safe { color: #22c55e; }
+        .risk { color: orange; }
+
+        button {
+            padding: 8px 14px;
+            font-size: 14px;
+            background: #22c55e;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        .best {
+            background: #065f46 !important;
+        }
+
+        .guide {
+            background: #1e293b;
+            padding: 10px;
+            margin: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚀 AI Trading Dashboard</h1>
+
+<div class="guide">
+    <h3>📘 Beginner Guide</h3>
+    <p>
+        🟢 BUY → Price may go UP<br>
+        🔴 SELL → Price may go DOWN<br>
+        ✅ Trade only if Confidence > 75%<br>
+        ⚠️ Always use Stop Loss<br>
+    </p>
+</div>
+
+<button onclick="loadData()">Refresh Signals</button>
+<button onclick="loadBacktest()">Check Accuracy</button>
+
+<!-- 🔥 SIGNAL TABLE -->
+<table>
+    <thead>
+        <tr>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>RSI</th>
+            <th>Signal</th>
+            <th>Confidence</th>
+            <th>Quality</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<!-- 🔥 BACKTEST -->
+<h2>📊 AI Accuracy</h2>
+<p id="backtest-result">Click "Check Accuracy"</p>
+
+<!-- 🔥 TOTAL PnL -->
+<h2>💰 Total PnL: <span id="total-pnl">₹0</span></h2>
+
+<!-- 🔥 TRADE HISTORY -->
+<h2>📊 Trade History</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Stock</th>
+            <th>Buy Price</th>
+            <th>Stop Loss</th>
+            <th>Target</th>
+            <th>Time</th>
+            <th>PnL</th>
+        </tr>
+    </thead>
+    <tbody id="trade-body"></tbody>
+</table>
+
+<script>
+let trades = [];
+let latestPrices = {};
+
+// 🔥 LOAD SIGNALS
+async function loadData() {
+    const res = await fetch('/scan');
+    const data = await res.json();
+
+    const table = document.getElementById('table-body');
+    table.innerHTML = "";
+
+    data.results.forEach((stock, index) => {
+
+        // store latest price
+        latestPrices[stock.stock] = stock.price;
+
+        const quality = stock.confidence > 80 ? "SAFE ✅" : "RISK ⚠️";
+        const qualityClass = stock.confidence > 80 ? "safe" : "risk";
+
+        const row = `
+            <tr class="${index === 0 ? 'best' : ''}">
+                <td>${stock.stock}</td>
+                <td>₹${stock.price}</td>
+                <td>${stock.rsi}</td>
+                <td class="${stock.signal.toLowerCase()}">${stock.signal}</td>
+                <td>${stock.confidence}%</td>
+                <td class="${qualityClass}">${quality}</td>
+                <td>
+                    ${stock.signal === "BUY" ? 
+                        `<button onclick="buyStock('${stock.stock}', ${stock.price})">BUY</button>` 
+                        : ""}
+                </td>
+            </tr>
+        `;
+        table.innerHTML += row;
+    });
+
+    renderTrades(); // 🔥 update PnL live
+}
+
+// 🔥 BACKTEST
+async function loadBacktest() {
+    const res = await fetch('/backtest');
+    const data = await res.json();
+
+    document.getElementById('backtest-result').innerText =
+        `Accuracy: ${data.accuracy}% | Trades: ${data.trades} | Wins: ${data.wins}`;
+}
+
+// 🔥 BUY
+function buyStock(stock, price) {
+    const stopLoss = (price * 0.99).toFixed(2);   // 1% SL
+    const target = (price * 1.02).toFixed(2);     // 2% Target
+
+    const trade = {
+        stock,
+        buyPrice: price,
+        stopLoss,
+        target,
+        pnl: 0,
+        time: new Date().toLocaleTimeString()
+    };
+
+    trades.push(trade);
+
+    alert(`✅ Bought ${stock}
+Price: ₹${price}
+SL: ₹${stopLoss}
+Target: ₹${target}`);
+
+    renderTrades();
+}
+
+// 🔥 RENDER TRADES + PnL
+function renderTrades() {
+    const table = document.getElementById('trade-body');
+    table.innerHTML = "";
+
+    let totalPnL = 0;
+
+    trades.forEach(trade => {
+        const currentPrice = latestPrices[trade.stock] || trade.buyPrice;
+
+        trade.pnl = (currentPrice - trade.buyPrice).toFixed(2);
+
+        totalPnL += parseFloat(trade.pnl);
+
+        const row = `
+            <tr>
+                <td>${trade.stock}</td>
+                <td>₹${trade.buyPrice}</td>
+                <td>₹${trade.stopLoss}</td>
+                <td>₹${trade.target}</td>
+                <td>${trade.time}</td>
+                <td class="${trade.pnl >= 0 ? 'buy' : 'sell'}">
+                    ₹${trade.pnl}
+                </td>
+            </tr>
+        `;
+        table.innerHTML += row;
+    });
+
+    document.getElementById('total-pnl').innerText = `₹${totalPnL.toFixed(2)}`;
+}
+
+// 🔥 AUTO LOAD
+loadData();
+
+// 🔥 AUTO REFRESH
+setInterval(loadData, 10000);
+</script>
+
+</body>
+</html>
