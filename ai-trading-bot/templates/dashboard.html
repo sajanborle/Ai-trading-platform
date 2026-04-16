@@ -1,241 +1,562 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Trading Dashboard</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Assist Dashboard</title>
     <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            text-align: center;
+        :root {
+            --bg: #08111f;
+            --panel: rgba(10, 22, 39, 0.88);
+            --panel-strong: #10233b;
+            --line: rgba(143, 186, 255, 0.18);
+            --text: #e7f0ff;
+            --muted: #9eb1c9;
+            --green: #29d391;
+            --amber: #f4b942;
+            --red: #ff6b6b;
+            --blue: #74b9ff;
+            --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
         }
 
-        h1, h2, h3 {
-            margin-top: 20px;
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(41, 211, 145, 0.14), transparent 30%),
+                radial-gradient(circle at top right, rgba(116, 185, 255, 0.2), transparent 28%),
+                linear-gradient(135deg, #07101c, #0d1b2d 50%, #08111f);
+            min-height: 100vh;
+        }
+
+        .shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 40px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-copy {
+            padding: 26px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(116, 185, 255, 0.12);
+            color: var(--blue);
+            font-size: 13px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 16px 0 10px;
+            font-size: clamp(30px, 5vw, 52px);
+            line-height: 1.05;
+        }
+
+        .subtext {
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 58ch;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .stat {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .hero-actions {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #04111d;
+            cursor: pointer;
+            background: linear-gradient(135deg, #29d391, #74b9ff);
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .ghost {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 18px;
+        }
+
+        .section {
+            padding: 22px;
+        }
+
+        .section h2 {
+            margin: 0 0 6px;
+            font-size: 22px;
+        }
+
+        .section p {
+            margin: 0 0 18px;
+            color: var(--muted);
+        }
+
+        .card-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .idea-card {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .card-top, .metric-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .metric-row {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .buy {
+            background: rgba(41, 211, 145, 0.14);
+            color: var(--green);
+        }
+
+        .watch {
+            background: rgba(244, 185, 66, 0.16);
+            color: var(--amber);
+        }
+
+        .avoid {
+            background: rgba(255, 107, 107, 0.14);
+            color: var(--red);
+        }
+
+        .muted-box {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         table {
-            margin: auto;
-            margin-top: 20px;
+            width: 100%;
             border-collapse: collapse;
-            width: 75%;
+            margin-top: 16px;
         }
 
         th, td {
-            padding: 12px;
-            border: 1px solid #333;
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left;
+            font-size: 14px;
         }
 
         th {
-            background: #1e293b;
+            color: var(--muted);
+            font-weight: 600;
         }
 
-        tr:nth-child(even) {
-            background: #1e293b;
+        .table-wrap {
+            overflow-x: auto;
         }
 
-        .buy { color: lime; font-weight: bold; }
-        .sell { color: red; font-weight: bold; }
-
-        .safe { color: #22c55e; }
-        .risk { color: orange; }
-
-        button {
-            padding: 8px 14px;
-            font-size: 14px;
-            background: #22c55e;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
+        .note {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        button:hover {
-            background: #16a34a;
-        }
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
 
-        .best {
-            background: #065f46 !important;
-        }
-
-        .guide {
-            background: #1e293b;
-            padding: 10px;
-            margin: 15px;
-            border-radius: 10px;
+        @media (max-width: 900px) {
+            .hero, .layout, .field-grid, .button-row, .stats {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="shell">
+        <section class="hero">
+            <div class="panel hero-copy">
+                <div class="eyebrow">AI Swing + F&O Assist</div>
+                <h1>Stocks, stop-loss, target, and budget fit in one dashboard.</h1>
+                <p class="subtext">
+                    He dashboard ₹500 pasun workable ideas dakhavto, F&O eligible stocks highlight karto,
+                    ani technical trend plus headline sentiment var based confidence score deto.
+                </p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">Market Mood</div>
+                        <div class="stat-value" id="marketMood">Loading...</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Average Score</div>
+                        <div class="stat-value" id="avgScore">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Upstox Status</div>
+                        <div class="stat-value" id="upstoxStatus">Checking...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel hero-actions">
+                <div class="field-grid">
+                    <div>
+                        <label for="segment">Segment</label>
+                        <select id="segment">
+                            <option value="all">All ideas</option>
+                            <option value="equity">Equity only</option>
+                            <option value="fno">F&O stocks</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="budget">Budget</label>
+                        <input id="budget" type="number" min="100" value="500">
+                    </div>
+                    <div>
+                        <label for="stockSelect">Analyze stock</label>
+                        <select id="stockSelect"></select>
+                    </div>
+                    <div>
+                        <label for="qty">Buy qty</label>
+                        <input id="qty" type="number" min="1" value="1">
+                    </div>
+                </div>
+                <div class="button-row">
+                    <button onclick="loadIdeas()">Refresh Ideas</button>
+                    <button class="ghost" onclick="analyzeStock()">Analyze Stock</button>
+                    <button class="ghost" onclick="window.location.href='/login'">Connect Upstox</button>
+                    <button class="ghost" onclick="manualBuy()">Place Buy Order</button>
+                </div>
+                <div class="muted-box">
+                    <div id="topPickSummary">Top pick summary will appear here.</div>
+                    <div class="note" style="margin-top:10px;">
+                        Trading madhe risk ahe. He dashboard educational + decision-support tool aahe, guaranteed profit system nahi.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<h1>🚀 AI Trading Dashboard</h1>
+        <section class="layout">
+            <div class="panel section">
+                <h2>Top Trade Ideas</h2>
+                <p>Budget fit, score, setup, stop-loss, target ani live reasoning.</p>
+                <div id="ideaCards" class="card-grid"></div>
+            </div>
 
-<div class="guide">
-    <h3>📘 Beginner Guide</h3>
-    <p>
-        🟢 BUY → Price may go UP<br>
-        🔴 SELL → Price may go DOWN<br>
-        ✅ Trade only if Confidence > 75%<br>
-        ⚠️ Always use Stop Loss<br>
-    </p>
-</div>
+            <div class="panel section">
+                <h2>Single Stock Analysis</h2>
+                <p>Selected stock sathi quick AI breakdown.</p>
+                <div id="analysisPanel" class="muted-box">
+                    Stock select kar ani analyze click kar.
+                </div>
+            </div>
+        </section>
 
-<button onclick="loadData()">Refresh Signals</button>
-<button onclick="loadBacktest()">Check Accuracy</button>
+        <section class="panel section" style="margin-top:18px;">
+            <h2>Scanner Table</h2>
+            <p>Detailed view for shortlist stocks.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>Segment</th>
+                            <th>Price</th>
+                            <th>Decision</th>
+                            <th>Score</th>
+                            <th>SL</th>
+                            <th>Target</th>
+                            <th>R:R</th>
+                            <th>Budget Qty</th>
+                            <th>5D Momentum</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 
-<!-- 🔥 SIGNAL TABLE -->
-<table>
-    <thead>
-        <tr>
-            <th>Stock</th>
-            <th>Price</th>
-            <th>RSI</th>
-            <th>Signal</th>
-            <th>Confidence</th>
-            <th>Quality</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="table-body"></tbody>
-</table>
+    <script>
+        function decisionClass(decision) {
+            if (decision === "STRONG BUY" || decision === "BUY") return "buy";
+            if (decision === "WATCH") return "watch";
+            return "avoid";
+        }
 
-<!-- 🔥 BACKTEST -->
-<h2>📊 AI Accuracy</h2>
-<p id="backtest-result">Click "Check Accuracy"</p>
+        function signedClass(value) {
+            return Number(value) >= 0 ? "positive" : "negative";
+        }
 
-<!-- 🔥 TOTAL PnL -->
-<h2>💰 Total PnL: <span id="total-pnl">₹0</span></h2>
+        async function loadStocks() {
+            const segment = document.getElementById("segment").value;
+            const res = await fetch(`/stocks?segment=${segment}`);
+            const data = await res.json();
+            const select = document.getElementById("stockSelect");
+            select.innerHTML = "";
 
-<!-- 🔥 TRADE HISTORY -->
-<h2>📊 Trade History</h2>
+            data.results.forEach((stock) => {
+                const option = document.createElement("option");
+                option.value = stock.symbol;
+                option.textContent = `${stock.symbol} ${stock.is_fno ? "(F&O)" : ""}`;
+                select.appendChild(option);
+            });
+        }
 
-<table>
-    <thead>
-        <tr>
-            <th>Stock</th>
-            <th>Buy Price</th>
-            <th>Stop Loss</th>
-            <th>Target</th>
-            <th>Time</th>
-            <th>PnL</th>
-        </tr>
-    </thead>
-    <tbody id="trade-body"></tbody>
-</table>
+        async function loadStatus() {
+            const [statusRes, marketRes] = await Promise.all([
+                fetch("/api/status"),
+                fetch("/market-overview")
+            ]);
+            const statusData = await statusRes.json();
+            const marketData = await marketRes.json();
 
-<script>
-let trades = [];
-let latestPrices = {};
+            document.getElementById("upstoxStatus").textContent =
+                statusData.upstox.connected ? "Connected" : "Login Pending";
+            document.getElementById("marketMood").textContent = marketData.market_mood;
+            document.getElementById("avgScore").textContent = marketData.avg_score || "-";
 
-// 🔥 LOAD SIGNALS
-async function loadData() {
-    const res = await fetch('/scan');
-    const data = await res.json();
+            if (marketData.top_pick) {
+                const pick = marketData.top_pick;
+                document.getElementById("topPickSummary").innerHTML =
+                    `<strong>${pick.symbol}</strong> looks strongest right now with score <strong>${pick.score}</strong>,
+                    setup <strong>${pick.setup}</strong>, stop-loss <strong>₹${pick.stop_loss}</strong> and target
+                    <strong>₹${pick.target}</strong>.`;
+            }
+        }
 
-    const table = document.getElementById('table-body');
-    table.innerHTML = "";
+        function renderIdeas(ideas) {
+            const cards = document.getElementById("ideaCards");
+            const table = document.getElementById("tableBody");
 
-    data.results.forEach((stock, index) => {
+            if (!ideas.length) {
+                cards.innerHTML = `<div class="muted-box">No valid ideas right now. Budget vadhav kiva dusra segment try kar.</div>`;
+                table.innerHTML = `<tr><td colspan="10">No data</td></tr>`;
+                return;
+            }
 
-        // store latest price
-        latestPrices[stock.stock] = stock.price;
+            cards.innerHTML = ideas.map((idea) => `
+                <div class="idea-card">
+                    <div class="card-top">
+                        <div>
+                            <div style="font-size:20px;font-weight:700;">${idea.symbol}</div>
+                            <div style="color:var(--muted);margin-top:4px;">${idea.setup} • ${idea.segment}</div>
+                        </div>
+                        <span class="pill ${decisionClass(idea.decision)}">${idea.decision}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Price ₹${idea.price}</span>
+                        <span>Score ${idea.score}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>SL ₹${idea.stop_loss}</span>
+                        <span>Target ₹${idea.target}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Budget Qty ${idea.qty}</span>
+                        <span>R:R ${idea.risk_reward}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="${signedClass(idea.momentum_5d)}">5D ${idea.momentum_5d}%</span>
+                        <span>${idea.news_sentiment} news</span>
+                    </div>
+                    <div class="note" style="margin-top:12px;">${idea.reason}</div>
+                </div>
+            `).join("");
 
-        const quality = stock.confidence > 80 ? "SAFE ✅" : "RISK ⚠️";
-        const qualityClass = stock.confidence > 80 ? "safe" : "risk";
+            table.innerHTML = ideas.map((idea) => `
+                <tr>
+                    <td>${idea.symbol}</td>
+                    <td>${idea.segment}</td>
+                    <td>₹${idea.price}</td>
+                    <td><span class="pill ${decisionClass(idea.decision)}">${idea.decision}</span></td>
+                    <td>${idea.score}</td>
+                    <td>₹${idea.stop_loss}</td>
+                    <td>₹${idea.target}</td>
+                    <td>${idea.risk_reward}</td>
+                    <td>${idea.qty}</td>
+                    <td class="${signedClass(idea.momentum_5d)}">${idea.momentum_5d}%</td>
+                </tr>
+            `).join("");
+        }
 
-        const row = `
-            <tr class="${index === 0 ? 'best' : ''}">
-                <td>${stock.stock}</td>
-                <td>₹${stock.price}</td>
-                <td>${stock.rsi}</td>
-                <td class="${stock.signal.toLowerCase()}">${stock.signal}</td>
-                <td>${stock.confidence}%</td>
-                <td class="${qualityClass}">${quality}</td>
-                <td>
-                    ${stock.signal === "BUY" ? 
-                        `<button onclick="buyStock('${stock.stock}', ${stock.price})">BUY</button>` 
-                        : ""}
-                </td>
-            </tr>
-        `;
-        table.innerHTML += row;
-    });
+        async function loadIdeas() {
+            const budget = document.getElementById("budget").value || 500;
+            const segment = document.getElementById("segment").value;
+            const res = await fetch(`/trade-ideas?budget=${budget}&segment=${segment}&limit=8`);
+            const data = await res.json();
+            renderIdeas(data.results || []);
+            await loadStocks();
+        }
 
-    renderTrades(); // 🔥 update PnL live
-}
+        async function analyzeStock() {
+            const symbol = document.getElementById("stockSelect").value;
+            const budget = document.getElementById("budget").value || 500;
+            const res = await fetch(`/analyze?symbol=${symbol}&budget=${budget}`);
+            const data = await res.json();
+            const panel = document.getElementById("analysisPanel");
 
-// 🔥 BACKTEST
-async function loadBacktest() {
-    const res = await fetch('/backtest');
-    const data = await res.json();
+            if (data.error) {
+                panel.innerHTML = `<div class="note">${data.error}</div>`;
+                return;
+            }
 
-    document.getElementById('backtest-result').innerText =
-        `Accuracy: ${data.accuracy}% | Trades: ${data.trades} | Wins: ${data.wins}`;
-}
+            panel.innerHTML = `
+                <div class="card-top">
+                    <div>
+                        <div style="font-size:22px;font-weight:700;">${data.symbol}</div>
+                        <div style="color:var(--muted);margin-top:4px;">${data.setup} • ${data.segment}</div>
+                    </div>
+                    <span class="pill ${decisionClass(data.decision)}">${data.decision}</span>
+                </div>
+                <div class="metric-row"><span>Price</span><strong>₹${data.price}</strong></div>
+                <div class="metric-row"><span>Stop-loss</span><strong>₹${data.stop_loss}</strong></div>
+                <div class="metric-row"><span>Target</span><strong>₹${data.target}</strong></div>
+                <div class="metric-row"><span>Daily change</span><strong class="${signedClass(data.daily_change_pct)}">${data.daily_change_pct}%</strong></div>
+                <div class="metric-row"><span>5D momentum</span><strong class="${signedClass(data.momentum_5d)}">${data.momentum_5d}%</strong></div>
+                <div class="metric-row"><span>RSI / Score</span><strong>${data.rsi} / ${data.score}</strong></div>
+                <div class="metric-row"><span>Budget fit qty</span><strong>${data.qty}</strong></div>
+                <div class="note" style="margin-top:14px;">${data.reason}</div>
+                <div class="note" style="margin-top:10px;">Headline signal: ${data.headline}</div>
+            `;
+        }
 
-// 🔥 BUY
-function buyStock(stock, price) {
-    const stopLoss = (price * 0.99).toFixed(2);   // 1% SL
-    const target = (price * 1.02).toFixed(2);     // 2% Target
+        async function manualBuy() {
+            const symbol = document.getElementById("stockSelect").value;
+            const qty = document.getElementById("qty").value || 1;
 
-    const trade = {
-        stock,
-        buyPrice: price,
-        stopLoss,
-        target,
-        pnl: 0,
-        time: new Date().toLocaleTimeString()
-    };
+            if (!symbol) {
+                alert("Stock select kar.");
+                return;
+            }
 
-    trades.push(trade);
+            const confirmed = confirm(`Buy ${symbol} qty ${qty} via Upstox?`);
+            if (!confirmed) return;
 
-    alert(`✅ Bought ${stock}
-Price: ₹${price}
-SL: ₹${stopLoss}
-Target: ₹${target}`);
+            const res = await fetch(`/buy?symbol=${symbol}&qty=${qty}`, { method: "POST" });
+            const data = await res.json();
 
-    renderTrades();
-}
+            if (data.error) {
+                alert(`${data.error}\n${data.details || ""}`);
+                return;
+            }
 
-// 🔥 RENDER TRADES + PnL
-function renderTrades() {
-    const table = document.getElementById('trade-body');
-    table.innerHTML = "";
+            alert(`Order response: ${JSON.stringify(data)}`);
+        }
 
-    let totalPnL = 0;
+        document.getElementById("segment").addEventListener("change", async () => {
+            await loadStocks();
+            await loadIdeas();
+        });
 
-    trades.forEach(trade => {
-        const currentPrice = latestPrices[trade.stock] || trade.buyPrice;
+        async function init() {
+            await loadStatus();
+            await loadStocks();
+            await loadIdeas();
+            await analyzeStock();
+        }
 
-        trade.pnl = (currentPrice - trade.buyPrice).toFixed(2);
-
-        totalPnL += parseFloat(trade.pnl);
-
-        const row = `
-            <tr>
-                <td>${trade.stock}</td>
-                <td>₹${trade.buyPrice}</td>
-                <td>₹${trade.stopLoss}</td>
-                <td>₹${trade.target}</td>
-                <td>${trade.time}</td>
-                <td class="${trade.pnl >= 0 ? 'buy' : 'sell'}">
-                    ₹${trade.pnl}
-                </td>
-            </tr>
-        `;
-        table.innerHTML += row;
-    });
-
-    document.getElementById('total-pnl').innerText = `₹${totalPnL.toFixed(2)}`;
-}
-
-// 🔥 AUTO LOAD
-loadData();
-
-// 🔥 AUTO REFRESH
-setInterval(loadData, 10000);
-</script>
-
+        init();
+    </script>
 </body>
 </html>
