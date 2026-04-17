@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse, RedirectResponse
+from pathlib import Path
 
 from bot import (
     analyze_symbol,
@@ -18,11 +19,13 @@ from practice import add_journal_note, get_practice_dashboard, paper_buy, paper_
 from upstox import generate_token, get_connection_status, get_login_url, place_market_order
 
 app = FastAPI(title="AI Trading Assistant")
+BASE_DIR = Path(__file__).resolve().parent
+TEMPLATE_FILE = BASE_DIR / "templates" / "dashboard.html"
 
 
 @app.get("/")
 def home():
-    return FileResponse("templates/dashboard.html")
+    return FileResponse(TEMPLATE_FILE)
 
 
 @app.get("/login")
