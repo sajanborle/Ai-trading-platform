@@ -4,18 +4,24 @@ from pathlib import Path
 
 from bot import (
     analyze_symbol,
+    compare_stock_plans,
+    compare_fno_stocks,
+    compare_mutual_funds,
     generate_beginner_ideas,
     generate_option_ideas,
     generate_trade_ideas,
+    get_beginner_mutual_funds,
     get_beginner_playbook,
+    get_daily_market_summary,
     get_market_overview,
+    get_mutual_fund_plan,
     get_news_for_symbol,
     get_option_contract_suggestions,
     get_personal_stock_plan,
     get_stock_list,
     get_token,
+    suggest_stock_vs_mutual_fund,
 )
-from practice import add_journal_note, get_practice_dashboard, paper_buy, paper_sell, reset_practice_account
 from upstox import generate_token, get_connection_status, get_login_url, place_market_order
 
 app = FastAPI(title="AI Trading Assistant")
@@ -93,29 +99,48 @@ def personal_analysis(symbol: str, capital: int = 500, risk_profile: str = "low"
         return {"error": f"Unable to build plan for {symbol.upper()}", "details": str(exc)}
 
 
-@app.get("/practice")
-def practice_dashboard():
-    return get_practice_dashboard()
+@app.get("/compare")
+def compare(symbols: str, capital: int = 500, risk_profile: str = "low"):
+    raw_symbols = [item.strip() for item in symbols.split(",") if item.strip()]
+    return compare_stock_plans(raw_symbols, capital=capital, risk_profile=risk_profile)
 
 
-@app.post("/practice/buy")
-def practice_buy(symbol: str, qty: int = 1, note: str = ""):
-    return paper_buy(symbol=symbol, qty=qty, note=note)
+@app.get("/compare-fno")
+def compare_fno(symbols: str, capital: int = 500, risk_profile: str = "low"):
+    raw_symbols = [item.strip() for item in symbols.split(",") if item.strip()]
+    return compare_fno_stocks(raw_symbols, capital=capital, risk_profile=risk_profile)
 
 
-@app.post("/practice/sell")
-def practice_sell(position_id: str, note: str = ""):
-    return paper_sell(position_id=position_id, note=note)
+@app.get("/mutual-fund/{code}")
+def mutual_fund_plan(code: str, sip_amount: int = 500, risk_profile: str = "low"):
+    try:
+        return get_mutual_fund_plan(code.upper(), sip_amount=sip_amount, risk_profile=risk_profile)
+    except Exception as exc:
+        return {"error": str(exc)}
 
 
-@app.post("/practice/journal")
-def practice_journal(symbol: str = "", note: str = "", mood: str = "neutral"):
-    return add_journal_note(symbol=symbol, note=note, mood=mood)
+@app.get("/compare-mutual-funds")
+def compare_mf(codes: str, sip_amount: int = 500, risk_profile: str = "low"):
+    raw_codes = [item.strip() for item in codes.split(",") if item.strip()]
+    return compare_mutual_funds(raw_codes, sip_amount=sip_amount, risk_profile=risk_profile)
 
 
-@app.post("/practice/reset")
-def practice_reset():
-    return reset_practice_account()
+@app.get("/beginner-mutual-funds")
+def beginner_mutual_funds(sip_amount: int = 500):
+    return get_beginner_mutual_funds(sip_amount=sip_amount)
+
+
+@app.get("/stock-vs-mutual-fund")
+def stock_vs_mutual_fund(symbol: str, capital: int = 500, risk_profile: str = "low"):
+    try:
+        return suggest_stock_vs_mutual_fund(symbol=symbol, capital=capital, risk_profile=risk_profile)
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/daily-summary")
+def daily_summary():
+    return get_daily_market_summary()
 
 
 @app.get("/option-ideas")

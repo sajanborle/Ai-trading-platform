@@ -1,290 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Stock Coach</title>
-    <style>
-        :root {
-            --bg: #0a1421;
-            --panel: rgba(13, 25, 43, 0.92);
-            --line: rgba(140, 184, 255, 0.18);
-            --text: #edf4ff;
-            --muted: #9db0ca;
-            --green: #28d08a;
-            --amber: #f0b74a;
-            --red: #ff6b6b;
-            --blue: #79b8ff;
-            --shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            color: var(--text);
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background:
-                radial-gradient(circle at top left, rgba(40, 208, 138, 0.12), transparent 28%),
-                radial-gradient(circle at top right, rgba(121, 184, 255, 0.18), transparent 30%),
-                linear-gradient(135deg, #07101b, #0b1727 55%, #09121e);
-        }
-
-        .shell {
-            width: min(980px, calc(100% - 32px));
-            margin: 0 auto;
-            padding: 28px 0 40px;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 26px;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-        }
-
-        .hero {
-            padding: 28px;
-            margin-bottom: 18px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(121, 184, 255, 0.12);
-            color: var(--blue);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        h1 {
-            margin: 16px 0 10px;
-            font-size: clamp(30px, 5vw, 52px);
-            line-height: 1.05;
-        }
-
-        .subtext, .note {
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .coach {
-            padding: 24px;
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-
-        input, select, button {
-            width: 100%;
-            border-radius: 14px;
-            font-size: 15px;
-        }
-
-        input, select {
-            padding: 12px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text);
-        }
-
-        button {
-            padding: 13px 16px;
-            border: 0;
-            font-weight: 700;
-            cursor: pointer;
-            color: #04111d;
-            background: linear-gradient(135deg, #28d08a, #79b8ff);
-        }
-
-        .card-grid {
-            display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .card {
-            padding: 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .card-top, .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .metric-row {
-            margin-top: 12px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .buy { background: rgba(40, 208, 138, 0.14); color: var(--green); }
-        .watch { background: rgba(240, 183, 74, 0.14); color: var(--amber); }
-        .avoid { background: rgba(255, 107, 107, 0.14); color: var(--red); }
-
-        .guide {
-            padding: 24px;
-        }
-
-        .guide-list {
-            display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        @media (max-width: 820px) {
-            .grid, .card-grid, .guide-list {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Stock Coach</title>
+  <style>
+    :root{--bg:#09121d;--panel:#0f1d31;--line:#223a59;--text:#edf3ff;--muted:#9cb0ca;--green:#28d08a;--amber:#f0b74a;--red:#ff6b6b;--blue:#79b8ff}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07101b,#0d1727 60%,#09121d);color:var(--text);font-family:Segoe UI,Tahoma,sans-serif}
+    .shell{width:min(1150px,calc(100% - 24px));margin:0 auto;padding:20px 0 36px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:14px}
+    .grid2,.grid3,.layout,.cards{display:grid;gap:12px}.layout{grid-template-columns:1.1fr .9fr}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+    input,select,button{width:100%;border-radius:12px;font-size:14px}input,select{padding:12px;border:1px solid #2a405e;background:#122238;color:var(--text)}button{padding:12px;border:0;font-weight:700;background:linear-gradient(135deg,var(--green),var(--blue));color:#04111d;cursor:pointer}.ghost{background:#17273e;color:var(--text)}
+    .card{background:#13233a;border:1px solid #244161;border-radius:16px;padding:16px}.row,.top{display:flex;justify-content:space-between;gap:10px;align-items:center}.row{margin-top:10px;color:var(--muted);font-size:14px}.pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}.buy{background:#133927;color:var(--green)}.wait{background:#3a3013;color:var(--amber)}.avoid{background:#3d1818;color:var(--red)}
+    .note{color:var(--muted);line-height:1.55}.empty{padding:16px;border:1px dashed #2a405e;border-radius:16px;color:var(--muted)}h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:14px 0 8px}h2{margin:0 0 6px}.tag{display:inline-block;padding:8px 12px;border-radius:999px;background:#14253b;color:var(--blue);font-size:12px;font-weight:700;text-transform:uppercase}
+    @media(max-width:900px){.layout,.grid2,.grid3,.cards{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-    <div class="shell">
-        <section class="panel hero">
-            <div class="eyebrow">Personal Stock Coach</div>
-            <h1>Fakta ekach kaam: stock nav de, ani simple answer ghe.</h1>
-            <p class="subtext">
-                Tu beginner ahes mhanun he dashboard intentionally simple kela ahe.
-                Fakat stock analyze kar, buy karu ka wait karu ka te samajh, ani stop-loss plus target bgh.
-            </p>
-        </section>
+  <div class="shell">
+    <section class="panel">
+      <div class="top">
+        <div>
+          <div class="tag" id="heroTag">Beginner Personal Stock Coach</div>
+          <h1 id="heroTitle">Type a stock and get a simple Buy, Wait, or Avoid answer.</h1>
+          <div class="note" id="heroText">Simple beginner dashboard with compare, watchlist, alerts, portfolio tracker, under-500 ideas, and daily summary.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-self:flex-start">
+          <button class="ghost" style="width:auto" onclick="setLang('mr')">Marathi</button>
+          <button class="ghost" style="width:auto" onclick="setLang('en')">English</button>
+        </div>
+      </div>
+    </section>
 
-        <section class="panel coach">
-            <div class="grid">
-                <div>
-                    <label for="coachSymbol">Stock symbol</label>
-                    <input id="coachSymbol" type="text" placeholder="Example: NTPC, SUZLON, SBIN" value="NTPC">
-                </div>
-                <div>
-                    <label for="coachCapital">Capital</label>
-                    <input id="coachCapital" type="number" min="100" value="500">
-                </div>
-                <div>
-                    <label for="coachRisk">Risk profile</label>
-                    <select id="coachRisk">
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-                <div>
-                    <label>&nbsp;</label>
-                    <button onclick="runPersonalCoach()">Analyze Stock</button>
-                </div>
-            </div>
-        </section>
+    <section class="layout">
+      <div class="panel">
+        <h2 id="coachTitle">Personal Coach</h2>
+        <div class="note" id="coachText">One stock, one clear answer.</div>
+        <div class="grid2" style="margin-top:12px">
+          <div><label>Symbol</label><input id="symbol" value="NTPC" placeholder="NTPC"></div>
+          <div><label>Capital</label><input id="capital" type="number" value="500"></div>
+          <div><label>Risk</label><select id="risk"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+          <div><label>&nbsp;</label><button onclick="analyze()">Analyze Stock</button></div>
+        </div>
+        <div id="coachPanel" class="cards" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+      <div class="panel">
+        <h2 id="dailyTitle">Daily Summary</h2>
+        <div class="note" id="dailyText">Today for a beginner.</div>
+        <div id="dailyPanel" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+    </section>
 
-        <section id="personalCoachPanel" class="card-grid">
-            <div class="card">Analysis loading...</div>
-        </section>
+    <section class="layout">
+      <div class="panel">
+        <h2 id="compareTitle">Compare 3 Stocks</h2>
+        <div class="grid2" style="margin-top:12px">
+          <div><label>Symbols</label><input id="compareSymbols" value="NTPC,SBIN,TATAMOTORS"></div>
+          <div><label>&nbsp;</label><button onclick="compareStocks()">Compare</button></div>
+        </div>
+        <div id="comparePanel" class="cards" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+      <div class="panel">
+        <h2 id="underTitle">Under 500 Ideas</h2>
+        <div class="note" id="underText">Safer beginner shortlist.</div>
+        <div id="underPanel" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+    </section>
 
-        <section class="panel guide" style="margin-top:18px;">
-            <h2 style="margin-top:0;">Beginner Rules</h2>
-            <div class="guide-list">
-                <div class="card">
-                    <div style="font-size:18px;font-weight:700;">1. Buy only if plan is clear</div>
-                    <div class="note" style="margin-top:10px;">Entry, stop-loss, target he tin goshti kalya shivay buy nako.</div>
-                </div>
-                <div class="card">
-                    <div style="font-size:18px;font-weight:700;">2. Start small</div>
-                    <div class="note" style="margin-top:10px;">Pahilyanda 1 small quantity ne start kar. Learning first, profit later.</div>
-                </div>
-                <div class="card">
-                    <div style="font-size:18px;font-weight:700;">3. Avoid shortcuts</div>
-                    <div class="note" style="margin-top:10px;">MTF, options, heavy intraday beginner sathi nako. Cash equity best.</div>
-                </div>
-            </div>
-        </section>
-    </div>
+    <section class="layout">
+      <div class="panel">
+        <h2>F&O Compare</h2>
+        <div class="note">F&O eligible stocks compare karu shakto, pan beginner asel tar cash equity safer ahe.</div>
+        <div class="grid2" style="margin-top:12px">
+          <div><label>F&O symbols</label><input id="fnoSymbols" value="SBIN,TATAMOTORS,RELIANCE"></div>
+          <div><label>&nbsp;</label><button onclick="compareFno()">Compare F&O</button></div>
+        </div>
+        <div id="fnoPanel" class="cards" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+      <div class="panel">
+        <h2>Mutual Fund Beginner Mode</h2>
+        <div class="note">Low-risk beginner sathi SIP-friendly mutual funds.</div>
+        <div id="mfBeginnerPanel" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+    </section>
 
-    <script>
-        function decisionClass(decision) {
-            if (decision === "STRONG BUY" || decision === "BUY" || decision === "BUY SMALL") return "buy";
-            if (decision === "WATCH" || decision === "WAIT") return "watch";
-            return "avoid";
-        }
+    <section class="layout">
+      <div class="panel">
+        <h2>Mutual Fund Compare</h2>
+        <div class="note">3 mutual funds compare kar. Codes use kar: `PPFAS_FLEXI`, `UTI_NIFTY50`, `ICICI_BALANCED`, `HDFC_MIDCAP`, `NIPPON_SMALL`.</div>
+        <div class="grid2" style="margin-top:12px">
+          <div><label>Fund codes</label><input id="mfCodes" value="UTI_NIFTY50,PPFAS_FLEXI,ICICI_BALANCED"></div>
+          <div><label>&nbsp;</label><button onclick="compareFunds()">Compare Funds</button></div>
+        </div>
+        <div id="mfComparePanel" class="cards" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+      <div class="panel">
+        <h2>Stock vs Mutual Fund</h2>
+        <div class="note">Tujhya risk profile nusar direct stock better ki mutual fund he suggest karel.</div>
+        <div id="stockVsMfPanel" style="margin-top:12px"><div class="empty">Loading...</div></div>
+      </div>
+    </section>
 
-        function renderPersonalCoach(data) {
-            const panel = document.getElementById("personalCoachPanel");
-            if (data.error) {
-                panel.innerHTML = `<div class="card">${data.error}</div>`;
-                return;
-            }
+    <section class="layout">
+      <div class="panel">
+        <div class="top"><h2 id="watchTitle">Watchlist</h2><button class="ghost" style="width:auto" onclick="addWatch()">Add current</button></div>
+        <div id="watchPanel" style="margin-top:12px"></div>
+      </div>
+      <div class="panel">
+        <div class="top"><h2 id="alertTitle">Alerts</h2><button class="ghost" style="width:auto" onclick="refreshAlerts()">Refresh</button></div>
+        <div id="alertPanel" style="margin-top:12px"></div>
+      </div>
+    </section>
 
-            panel.innerHTML = `
-                <div class="card">
-                    <div class="card-top">
-                        <div>
-                            <div style="font-size:24px;font-weight:700;">${data.symbol}</div>
-                            <div class="note" style="margin-top:6px;">${data.recommendation}</div>
-                        </div>
-                        <span class="pill ${decisionClass(data.recommendation)}">${data.decision}</span>
-                    </div>
-                    <div class="metric-row"><span>Current price</span><strong>₹${data.price}</strong></div>
-                    <div class="metric-row"><span>Suggested quantity</span><strong>${data.suggested_qty}</strong></div>
-                    <div class="metric-row"><span>Capital / Risk profile</span><strong>₹${data.capital} / ${data.risk_profile}</strong></div>
-                    <div class="metric-row"><span>Stop-loss</span><strong>₹${data.stop_loss}</strong></div>
-                    <div class="metric-row"><span>Target</span><strong>₹${data.target}</strong></div>
-                    <div class="metric-row"><span>Risk-reward</span><strong>${data.risk_reward}</strong></div>
-                    <div class="metric-row"><span>News sentiment</span><strong>${data.news_sentiment}</strong></div>
-                </div>
-                <div class="card">
-                    <div style="font-size:18px;font-weight:700;">Why this decision?</div>
-                    <div class="note" style="margin-top:10px;">${data.verdict_reason}</div>
-                    <div class="note" style="margin-top:12px;"><strong>Entry plan:</strong> ${data.entry_plan}</div>
-                    <div class="note" style="margin-top:12px;"><strong>Exit plan:</strong> ${data.exit_plan}</div>
-                    <div class="note" style="margin-top:12px;"><strong>Coach note:</strong> ${data.coach_note}</div>
-                    <div class="note" style="margin-top:12px;"><strong>Reality check:</strong> ${data.monthly_goal_note}</div>
-                </div>
-            `;
-        }
+    <section class="panel">
+      <h2 id="portfolioTitle">Portfolio Tracker</h2>
+      <div class="note" id="portfolioText">Manually add actual holdings. No broker sync.</div>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Symbol</label><input id="pSymbol" placeholder="NTPC"></div>
+        <div><label>Qty</label><input id="pQty" type="number" value="1"></div>
+        <div><label>Avg Price</label><input id="pAvg" type="number" value="100"></div>
+      </div>
+      <div style="margin-top:12px"><button style="max-width:220px" onclick="addHolding()">Add Holding</button></div>
+      <div id="portfolioPanel" class="cards" style="margin-top:12px"></div>
+    </section>
 
-        async function runPersonalCoach() {
-            const symbol = document.getElementById("coachSymbol").value.trim();
-            const capital = document.getElementById("coachCapital").value || 500;
-            const risk = document.getElementById("coachRisk").value;
-
-            if (!symbol) {
-                alert("Stock symbol tak.");
-                return;
-            }
-
-            const res = await fetch(`/personal-analysis?symbol=${encodeURIComponent(symbol)}&capital=${capital}&risk_profile=${risk}`);
-            const data = await res.json();
-            renderPersonalCoach(data);
-        }
-
-        runPersonalCoach();
-    </script>
+    <section class="panel">
+      <h2 id="guideTitle">Beginner Rules</h2>
+      <div class="grid3" style="margin-top:12px">
+        <div class="card"><strong id="g1t">Buy only with a plan</strong><div class="note" id="g1d" style="margin-top:8px">Entry, stop-loss, and target clear asel tarch buy.</div></div>
+        <div class="card"><strong id="g2t">Keep size small</strong><div class="note" id="g2d" style="margin-top:8px">Pahile small quantity, nantar scale.</div></div>
+        <div class="card"><strong id="g3t">Avoid shortcuts</strong><div class="note" id="g3d" style="margin-top:8px">MTF, options, aggressive intraday avoid kara.</div></div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const K={watch:"psc_watch",portfolio:"psc_portfolio",lang:"psc_lang"};
+    const T={en:{heroTitle:"Type a stock and get a simple Buy, Wait, or Avoid answer.",heroText:"Simple beginner dashboard with compare, watchlist, alerts, portfolio tracker, under-500 ideas, and daily summary.",coachTitle:"Personal Coach",coachText:"One stock, one clear answer.",dailyTitle:"Daily Summary",dailyText:"Today for a beginner.",compareTitle:"Compare 3 Stocks",underTitle:"Under 500 Ideas",underText:"Safer beginner shortlist.",watchTitle:"Watchlist",alertTitle:"Alerts",portfolioTitle:"Portfolio Tracker",portfolioText:"Manually add actual holdings. No broker sync.",guideTitle:"Beginner Rules",g1t:"Buy only with a plan",g1d:"Buy only when entry, stop-loss, and target are clear.",g2t:"Keep size small",g2d:"Start with small quantity and learn first.",g3t:"Avoid shortcuts",g3d:"Avoid MTF, options, and aggressive intraday as a beginner."},mr:{heroTitle:"Stock type kar ani simple Buy, Wait, ki Avoid answer ghe.",heroText:"Beginner dashboard with compare, watchlist, alerts, portfolio tracker, under-500 ideas, ani daily summary.",coachTitle:"Personal Coach",coachText:"Eka stock sathi ek clear answer.",dailyTitle:"Daily Summary",dailyText:"Aaj beginner sathi market.",compareTitle:"3 Stocks Compare Kar",underTitle:"Under 500 Ideas",underText:"Safer beginner shortlist.",watchTitle:"Watchlist",alertTitle:"Alerts",portfolioTitle:"Portfolio Tracker",portfolioText:"Actual holdings manually add kar. Broker sync nahi.",guideTitle:"Beginner Rules",g1t:"Plan asel tarch buy",g1d:"Entry, stop-loss, ani target clear asel tarch buy.",g2t:"Small size ne start kar",g2d:"Pahile small quantity, nantar scale kar.",g3t:"Shortcuts avoid kar",g3d:"MTF, options, aggressive intraday beginner sathi avoid."}};
+    const cls=v=>v==="BUY"||v==="BUY SMALL"||v==="STRONG BUY"?"buy":v==="WAIT"||v==="WATCH"?"wait":"avoid";
+    const load=k=>JSON.parse(localStorage.getItem(k)||"[]"), save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    function setLang(lang){localStorage.setItem(K.lang,lang);applyLang()}
+    function applyLang(){const d=T[localStorage.getItem(K.lang)||"mr"];Object.entries(d).forEach(([k,v])=>{const e=document.getElementById(k);if(e)e.textContent=v})}
+    function currentParams(){return{symbol:document.getElementById("symbol").value.trim(),capital:document.getElementById("capital").value||500,risk:document.getElementById("risk").value}}
+    async function analyze(){const p=currentParams();if(!p.symbol)return;const r=await fetch(`/personal-analysis?symbol=${encodeURIComponent(p.symbol)}&capital=${p.capital}&risk_profile=${p.risk}`);const d=await r.json();renderCoach(d);await Promise.all([loadBeginnerFunds(),loadStockVsMf()])}
+    function renderCoach(d){const el=document.getElementById("coachPanel");if(d.error){el.innerHTML=`<div class="empty">${d.error}</div>`;return}el.innerHTML=`<div class="card"><div class="top"><div><div style="font-size:24px;font-weight:700">${d.symbol}</div><div class="note" style="margin-top:6px">${d.one_line_reason}</div></div><span class="pill ${cls(d.simple_output)}">${d.simple_output}</span></div><div class="row"><span>Confidence</span><strong>${d.confidence_label}</strong></div><div class="row"><span>Suggested qty</span><strong>${d.suggested_qty}</strong></div><div class="row"><span>Price</span><strong>₹${d.price}</strong></div><div class="row"><span>Stop-loss / Target</span><strong>₹${d.stop_loss} / ₹${d.target}</strong></div><div class="row"><span>Timing</span><strong>${d.timing_label}</strong></div><div class="row"><span>Risk-reward</span><strong>${d.risk_reward}</strong></div></div><div class="card"><strong>Why this decision?</strong><div class="note" style="margin-top:10px">${d.verdict_reason}</div><div class="note" style="margin-top:10px"><strong>Timing:</strong> ${d.timing_reason}</div><div class="note" style="margin-top:10px"><strong>News:</strong> ${d.news_summary}</div><div class="note" style="margin-top:10px"><strong>Exit:</strong> ${d.exit_plan}</div><div class="note" style="margin-top:10px"><strong>Reality check:</strong> ${d.monthly_goal_note}</div></div>`}
+    async function loadDaily(){const r=await fetch("/daily-summary");const d=await r.json();const p=document.getElementById("dailyPanel");const s=d.safe_pick;p.innerHTML=`<div class="card"><div class="top"><div><div style="font-size:20px;font-weight:700">${d.market_mood}</div><div class="note" style="margin-top:6px">${d.summary_line}</div></div><span class="pill ${cls(s?s.simple_action:"WAIT")}">${s?s.simple_action:"WAIT"}</span></div>${s?`<div class="row"><span>Top pick</span><strong>${s.symbol}</strong></div><div class="row"><span>Price</span><strong>₹${s.price}</strong></div><div class="row"><span>Target</span><strong>₹${s.target}</strong></div>`:`<div class="row"><span>No safe beginner pick right now.</span></div>`}</div>`}
+    async function compareStocks(){const syms=document.getElementById("compareSymbols").value.trim(),p=currentParams();const r=await fetch(`/compare?symbols=${encodeURIComponent(syms)}&capital=${p.capital}&risk_profile=${p.risk}`);const d=await r.json();const el=document.getElementById("comparePanel");el.innerHTML=(d.results||[]).map(i=>i.error?`<div class="card"><strong>${i.symbol}</strong><div class="note" style="margin-top:8px">${i.error}</div></div>`:`<div class="card"><div class="top"><div><div style="font-size:19px;font-weight:700">${i.symbol}</div><div class="note" style="margin-top:6px">${i.one_line_reason}</div></div><span class="pill ${cls(i.simple_output)}">${i.simple_output}</span></div><div class="row"><span>Confidence</span><strong>${i.confidence_label}</strong></div><div class="row"><span>Qty</span><strong>${i.suggested_qty}</strong></div><div class="row"><span>Timing</span><strong>${i.timing_label}</strong></div><div class="row"><span>R:R / News</span><strong>${i.risk_reward} / ${i.news_sentiment}</strong></div>${d.best_pick&&d.best_pick.symbol===i.symbol?`<div class="note" style="margin-top:8px">Best among compared stocks.</div>`:""}</div>`).join("")||`<div class="empty">No comparison data.</div>`}
+    async function compareFno(){const syms=document.getElementById("fnoSymbols").value.trim(),p=currentParams();const r=await fetch(`/compare-fno?symbols=${encodeURIComponent(syms)}&capital=${p.capital}&risk_profile=${p.risk}`);const d=await r.json();const el=document.getElementById("fnoPanel");if(d.error){el.innerHTML=`<div class="empty">${d.error}</div>`;return}el.innerHTML=(d.results||[]).map(i=>i.error?`<div class="card"><strong>${i.symbol}</strong><div class="note" style="margin-top:8px">${i.error}</div></div>`:`<div class="card"><div class="top"><div><div style="font-size:19px;font-weight:700">${i.symbol}</div><div class="note" style="margin-top:6px">${i.one_line_reason}</div></div><span class="pill ${cls(i.simple_output)}">${i.simple_output}</span></div><div class="row"><span>Confidence</span><strong>${i.confidence_label}</strong></div><div class="row"><span>Qty</span><strong>${i.suggested_qty}</strong></div><div class="row"><span>Timing</span><strong>${i.timing_label}</strong></div><div class="row"><span>News</span><strong>${i.news_sentiment}</strong></div>${d.best_pick&&d.best_pick.symbol===i.symbol?`<div class="note" style="margin-top:8px">${d.best_pick.warning||"Best F&O pick."}</div>`:""}</div>`).join("")||`<div class="empty">No F&O comparison data.</div>`}
+    async function loadUnder(){const r=await fetch("/beginner-ideas?budget=500&limit=6");const d=await r.json();const el=document.getElementById("underPanel");const a=d.results||[];el.innerHTML=a.length?a.map(i=>`<div class="card"><div class="top"><div><div style="font-size:18px;font-weight:700">${i.symbol}</div><div class="note" style="margin-top:6px">${i.why_this_stock}</div></div><span class="pill ${cls(i.simple_action||i.decision)}">${i.simple_action||i.decision}</span></div><div class="row"><span>Price</span><strong>₹${i.price}</strong></div><div class="row"><span>Stop-loss / Target</span><strong>₹${i.stop_loss} / ₹${i.target}</strong></div></div>`).join(""):`<div class="empty">No under-500 ideas right now.</div>`}
+    async function loadBeginnerFunds(){const p=currentParams();const r=await fetch(`/beginner-mutual-funds?sip_amount=${p.capital}`);const d=await r.json();const el=document.getElementById("mfBeginnerPanel");const a=d.results||[];el.innerHTML=a.length?a.map(i=>`<div class="card"><div class="top"><div><div style="font-size:18px;font-weight:700">${i.name}</div><div class="note" style="margin-top:6px">${i.one_line_reason}</div></div><span class="pill ${cls(i.simple_output==="GOOD FOR SIP"?"BUY":i.simple_output==="CONSIDER"?"WAIT":"AVOID")}">${i.simple_output}</span></div><div class="row"><span>Category / Risk</span><strong>${i.category} / ${i.risk_level}</strong></div><div class="row"><span>SIP min / You</span><strong>₹${i.sip_min} / ₹${p.capital}</strong></div><div class="row"><span>3Y / 5Y return</span><strong>${i.return_3y}% / ${i.return_5y}%</strong></div></div>`).join(""):`<div class="empty">No beginner mutual funds data.</div>`}
+    async function compareFunds(){const codes=document.getElementById("mfCodes").value.trim(),p=currentParams();const r=await fetch(`/compare-mutual-funds?codes=${encodeURIComponent(codes)}&sip_amount=${p.capital}&risk_profile=${p.risk}`);const d=await r.json();const el=document.getElementById("mfComparePanel");el.innerHTML=(d.results||[]).map(i=>i.error?`<div class="card"><strong>${i.code}</strong><div class="note" style="margin-top:8px">${i.error}</div></div>`:`<div class="card"><div class="top"><div><div style="font-size:18px;font-weight:700">${i.name}</div><div class="note" style="margin-top:6px">${i.one_line_reason}</div></div><span class="pill ${cls(i.simple_output==="GOOD FOR SIP"?"BUY":i.simple_output==="CONSIDER"?"WAIT":"AVOID")}">${i.simple_output}</span></div><div class="row"><span>Risk / Category</span><strong>${i.risk_level} / ${i.category}</strong></div><div class="row"><span>Expense</span><strong>${i.expense_ratio}%</strong></div><div class="row"><span>1Y / 3Y / 5Y</span><strong>${i.return_1y}% / ${i.return_3y}% / ${i.return_5y}%</strong></div>${d.best_pick&&d.best_pick.code===i.code?`<div class="note" style="margin-top:8px">Best mutual fund among compared options.</div>`:""}</div>`).join("")||`<div class="empty">No mutual fund comparison data.</div>`}
+    async function loadStockVsMf(){const p=currentParams();const r=await fetch(`/stock-vs-mutual-fund?symbol=${encodeURIComponent(p.symbol)}&capital=${p.capital}&risk_profile=${p.risk}`);const d=await r.json();const el=document.getElementById("stockVsMfPanel");if(d.error){el.innerHTML=`<div class="empty">${d.error}</div>`;return}const mf=d.mutual_fund_pick;el.innerHTML=`<div class="card"><div class="top"><div><div style="font-size:20px;font-weight:700">${d.suggestion}</div><div class="note" style="margin-top:6px">${d.why}</div></div><span class="pill ${cls(d.suggestion==="STOCK"?"BUY":"WAIT")}">${d.suggestion}</span></div><div class="row"><span>Stock verdict</span><strong>${d.stock_plan.simple_output}</strong></div><div class="row"><span>Stock confidence</span><strong>${d.stock_plan.confidence_label}</strong></div>${mf?`<div class="row"><span>MF alternative</span><strong>${mf.name}</strong></div><div class="row"><span>MF output</span><strong>${mf.simple_output}</strong></div>`:""}</div>`}
+    function addWatch(){const s=document.getElementById("symbol").value.trim().toUpperCase();if(!s)return;const items=load(K.watch);if(!items.includes(s))items.push(s);save(K.watch,items);renderWatch()}
+    function removeWatch(s){save(K.watch,load(K.watch).filter(x=>x!==s));renderWatch();refreshAlerts()}
+    function renderWatch(){const el=document.getElementById("watchPanel"),items=load(K.watch);el.innerHTML=items.length?items.map(s=>`<div class="card"><div class="top"><strong>${s}</strong><div style="display:flex;gap:8px"><button class="ghost" style="width:auto" onclick="document.getElementById('symbol').value='${s}';analyze()">Open</button><button class="ghost" style="width:auto" onclick="removeWatch('${s}')">Remove</button></div></div></div>`).join(""):`<div class="empty">No watchlist stocks yet.</div>`}
+    function addHolding(){const s=document.getElementById("pSymbol").value.trim().toUpperCase(),q=Number(document.getElementById("pQty").value||0),a=Number(document.getElementById("pAvg").value||0);if(!s||q<=0||a<=0){alert("Valid symbol, qty, avg price tak.");return}const h=load(K.portfolio);h.push({symbol:s,qty:q,avg:a});save(K.portfolio,h);renderPortfolio();refreshAlerts()}
+    function removeHolding(i){const h=load(K.portfolio);h.splice(i,1);save(K.portfolio,h);renderPortfolio();refreshAlerts()}
+    async function renderPortfolio(){const el=document.getElementById("portfolioPanel"),items=load(K.portfolio);if(!items.length){el.innerHTML=`<div class="empty">No holdings added yet.</div>`;return}const cards=await Promise.all(items.map(async(h,i)=>{try{const cap=Math.max(h.qty*h.avg,500);const r=await fetch(`/personal-analysis?symbol=${h.symbol}&capital=${cap}&risk_profile=low`);const d=await r.json();const current=(d.price*h.qty).toFixed(2), invested=(h.avg*h.qty).toFixed(2), pnl=(current-invested).toFixed(2);return `<div class="card"><div class="top"><div><div style="font-size:18px;font-weight:700">${h.symbol}</div><div class="note" style="margin-top:6px">${h.qty} qty @ ₹${h.avg}</div></div><span class="pill ${cls(d.simple_output)}">${d.simple_output}</span></div><div class="row"><span>Current / Invested</span><strong>₹${current} / ₹${invested}</strong></div><div class="row"><span>P&L</span><strong>₹${pnl}</strong></div><div class="row"><span>Coach view</span><strong>${d.simple_output}</strong></div><div class="row"><span>SL / Target</span><strong>₹${d.stop_loss} / ₹${d.target}</strong></div><button class="ghost" style="margin-top:10px;max-width:140px" onclick="removeHolding(${i})">Remove</button></div>`}catch{return `<div class="card"><strong>${h.symbol}</strong><div class="note" style="margin-top:8px">Unable to analyze.</div></div>`}}));el.innerHTML=cards.join("")}
+    async function refreshAlerts(){const el=document.getElementById("alertPanel"),symbols=[...new Set([...load(K.watch),...load(K.portfolio).map(x=>x.symbol)])];if(!symbols.length){el.innerHTML=`<div class="empty">No alerts because watchlist and portfolio are empty.</div>`;return}const out=[];for(const s of symbols.slice(0,8)){try{const r=await fetch(`/personal-analysis?symbol=${s}&capital=500&risk_profile=low`);const d=await r.json();if(d.price<=d.stop_loss)out.push({s,t:"STOP LOSS HIT",n:"Price is near or below stop-loss. Review immediately."});else if(d.price>=d.target)out.push({s,t:"TARGET HIT",n:"Price is in target zone. Profit booking review kara."});else if(d.simple_output==="BUY"&&d.confidence_label==="High")out.push({s,t:"HIGH CONFIDENCE BUY",n:"Strong setup, but still buy only small quantity."})}catch{}}el.innerHTML=out.length?out.map(a=>`<div class="card"><div class="top"><strong>${a.s}</strong><span class="pill ${cls(a.t.includes("STOP")?"AVOID":"BUY")}">${a.t}</span></div><div class="note" style="margin-top:8px">${a.n}</div></div>`).join(""):`<div class="empty">No fresh alerts right now.</div>`}
+    async function init(){applyLang();renderWatch();await Promise.all([analyze(),loadDaily(),compareStocks(),compareFno(),loadUnder(),loadBeginnerFunds(),compareFunds(),loadStockVsMf(),renderPortfolio(),refreshAlerts()])}
+    init();
+  </script>
 </body>
 </html>

@@ -34,15 +34,93 @@ TOP_50_STOCKS = [
     "SIEMENS", "TATACONSUM", "TATAMOTORS", "UPL", "VEDL", "AMBUJACEM",
 ]
 
-# FNO_STOCKS = {
-#     "RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT",
-#     "AXISBANK", "KOTAKBANK", "BAJFINANCE", "MARUTI", "ASIANPAINT", "HINDUNILVR",
-#     "ULTRACEMCO", "WIPRO", "TECHM", "TITAN", "SUNPHARMA", "POWERGRID",
-#     "NTPC", "ONGC", "TATASTEEL", "JSWSTEEL", "ADANIENT", "ADANIPORTS",
-#     "BAJAJFINSV", "CIPLA", "COALINDIA", "DRREDDY", "GRASIM", "HCLTECH",
-#     "HEROMOTOCO", "HINDALCO", "INDUSINDBK", "M&M", "SBILIFE",
-#     "SIEMENS", "TATACONSUM", "TATAMOTORS", "UPL",
-# }
+FNO_STOCKS: set[str] = {
+    "RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT",
+    "AXISBANK", "KOTAKBANK", "BAJFINANCE", "MARUTI", "ASIANPAINT", "HINDUNILVR",
+    "ULTRACEMCO", "WIPRO", "TECHM", "TITAN", "SUNPHARMA", "POWERGRID",
+    "NTPC", "ONGC", "TATASTEEL", "JSWSTEEL", "ADANIENT", "ADANIPORTS",
+    "BAJAJFINSV", "CIPLA", "COALINDIA", "DRREDDY", "GRASIM", "HCLTECH",
+    "HEROMOTOCO", "HINDALCO", "INDUSINDBK", "M&M", "SBILIFE",
+    "SIEMENS", "TATACONSUM", "TATAMOTORS", "UPL",
+}
+
+MUTUAL_FUNDS = [
+    {
+        "code": "PPFAS_FLEXI",
+        "name": "Parag Parikh Flexi Cap Fund",
+        "category": "Flexi Cap",
+        "risk_level": "Moderate",
+        "expense_ratio": 0.63,
+        "aum_cr": 85900,
+        "return_1y": 17.8,
+        "return_3y": 19.6,
+        "return_5y": 24.2,
+        "sip_min": 500,
+        "exit_load": "1% if redeemed within 365 days",
+        "beginner_friendly": True,
+        "why": "Diversified flexi-cap fund with strong long-term track record and reasonable expense ratio.",
+    },
+    {
+        "code": "UTI_NIFTY50",
+        "name": "UTI Nifty 50 Index Fund",
+        "category": "Index",
+        "risk_level": "Moderate",
+        "expense_ratio": 0.2,
+        "aum_cr": 21000,
+        "return_1y": 16.4,
+        "return_3y": 15.8,
+        "return_5y": 18.3,
+        "sip_min": 500,
+        "exit_load": "Nil",
+        "beginner_friendly": True,
+        "why": "Simple index exposure, low cost, and beginner-friendly way to learn long-term investing.",
+    },
+    {
+        "code": "ICICI_BALANCED",
+        "name": "ICICI Prudential Balanced Advantage Fund",
+        "category": "Balanced Advantage",
+        "risk_level": "Low-Moderate",
+        "expense_ratio": 0.88,
+        "aum_cr": 64000,
+        "return_1y": 11.1,
+        "return_3y": 13.2,
+        "return_5y": 14.5,
+        "sip_min": 500,
+        "exit_load": "1% within 12 months",
+        "beginner_friendly": True,
+        "why": "Useful for conservative investors who want lower volatility than pure equity funds.",
+    },
+    {
+        "code": "HDFC_MIDCAP",
+        "name": "HDFC Mid-Cap Opportunities Fund",
+        "category": "Mid Cap",
+        "risk_level": "High",
+        "expense_ratio": 0.78,
+        "aum_cr": 72000,
+        "return_1y": 22.6,
+        "return_3y": 24.4,
+        "return_5y": 26.1,
+        "sip_min": 100,
+        "exit_load": "1% within 1 year",
+        "beginner_friendly": False,
+        "why": "Higher growth potential, but more volatile than index or flexi-cap funds.",
+    },
+    {
+        "code": "NIPPON_SMALL",
+        "name": "Nippon India Small Cap Fund",
+        "category": "Small Cap",
+        "risk_level": "High",
+        "expense_ratio": 0.72,
+        "aum_cr": 53000,
+        "return_1y": 24.3,
+        "return_3y": 27.4,
+        "return_5y": 30.6,
+        "sip_min": 100,
+        "exit_load": "1% within 1 year",
+        "beginner_friendly": False,
+        "why": "Good for aggressive long-term growth, but drawdowns can be sharp.",
+    },
+]
 
 POSITIVE_NEWS_WORDS = {
     "profit", "growth", "upgrade", "surge", "beat", "record", "bullish",
@@ -108,6 +186,45 @@ def _pct_change(current: float, previous: float) -> float:
     if not previous:
         return 0.0
     return round(((current - previous) / previous) * 100, 2)
+
+
+def _confidence_label(score: int) -> str:
+    if score >= 75:
+        return "High"
+    if score >= 58:
+        return "Medium"
+    return "Low"
+
+
+def _simple_action(decision: str) -> str:
+    if decision in {"STRONG BUY", "BUY"}:
+        return "BUY"
+    if decision == "WATCH":
+        return "WAIT"
+    return "AVOID"
+
+
+def _buy_timing(analysis: dict) -> tuple[str, str]:
+    price = float(analysis["price"])
+    resistance = float(analysis["resistance"])
+    support = float(analysis["support"])
+    daily_change = float(analysis["daily_change_pct"])
+
+    if analysis["decision"] == "AVOID":
+        return "Avoid now", "Trend and reward setup are not strong enough."
+    if daily_change > 2.5:
+        return "Wait for dip", "Price has already moved up fast today. Better to avoid chasing."
+    if support and abs(price - support) / max(price, 1) <= 0.015:
+        return "Buy near current zone", "Price is close to support, so risk can stay smaller."
+    if resistance and abs(resistance - price) / max(price, 1) <= 0.01:
+        return "Buy only on breakout", "Price is near resistance. Better to buy only after confirmation."
+    return "Buy in small quantity", "Current structure is acceptable, but beginner size should stay small."
+
+
+def _news_summary(news: dict) -> str:
+    if not news.get("articles"):
+        return "No reliable live headline available right now, so technical data is leading the decision."
+    return f"{news['label']} news tone from recent headlines. Main headline: {news['headline']}"
 
 
 def is_fno_symbol(symbol: str) -> bool:
@@ -394,6 +511,7 @@ def ai_decision(symbol: str, budget: int = 500) -> dict:
         "setup": setup,
         "score": score,
         "confidence": score,
+        "confidence_label": _confidence_label(score),
         "stop_loss": stop_loss,
         "target": target,
         "risk_reward": risk_reward,
@@ -406,6 +524,8 @@ def ai_decision(symbol: str, budget: int = 500) -> dict:
         "news_source": news["source"],
         "news_api_configured": news["api_configured"],
         "news_articles": news["articles"],
+        "simple_action": _simple_action(decision),
+        "news_summary": _news_summary(news),
     }
 
 
@@ -428,12 +548,14 @@ def get_personal_stock_plan(symbol: str, capital: int = 500, risk_profile: str =
     analysis = analyze_symbol(symbol=symbol, budget=capital)
 
     risk_profile = risk_profile.lower()
-    risk_fraction = {"low": 0.02, "medium": 0.04, "high": 0.06}.get(risk_profile, 0.02)
+    risk_fraction = {"low": 0.01, "medium": 0.02, "high": 0.03}.get(risk_profile, 0.01)
+    max_position_fraction = {"low": 0.25, "medium": 0.4, "high": 0.5}.get(risk_profile, 0.25)
     per_share_risk = max(analysis["price"] - analysis["stop_loss"], 0.01)
     max_risk_amount = round(capital * risk_fraction, 2)
     qty_by_budget = int(capital // analysis["price"]) if analysis["price"] > 0 else 0
+    qty_by_position_limit = int((capital * max_position_fraction) // analysis["price"]) if analysis["price"] > 0 else 0
     qty_by_risk = int(max_risk_amount // per_share_risk) if per_share_risk > 0 else 0
-    suggested_qty = max(min(qty_by_budget, qty_by_risk), 0)
+    suggested_qty = max(min(qty_by_budget, qty_by_risk, qty_by_position_limit if qty_by_position_limit > 0 else qty_by_budget), 0)
 
     recommendation = "AVOID"
     if analysis["decision"] in {"STRONG BUY", "BUY"} and suggested_qty >= 1:
@@ -441,6 +563,7 @@ def get_personal_stock_plan(symbol: str, capital: int = 500, risk_profile: str =
     elif analysis["decision"] == "WATCH":
         recommendation = "WAIT"
 
+    timing_label, timing_reason = _buy_timing(analysis)
     monthly_goal_note = (
         "Small monthly side income is possible only with discipline; it is not guaranteed, and some months can be negative."
     )
@@ -452,19 +575,192 @@ def get_personal_stock_plan(symbol: str, capital: int = 500, risk_profile: str =
         "per_share_risk": round(per_share_risk, 2),
         "max_risk_amount": max_risk_amount,
         "qty_by_budget": qty_by_budget,
+        "qty_by_position_limit": qty_by_position_limit,
         "qty_by_risk": qty_by_risk,
         "suggested_qty": suggested_qty,
         "recommendation": recommendation,
         "entry_plan": f"Consider entry near Rs. {analysis['price']} only if price stays above stop-loss Rs. {analysis['stop_loss']}.",
         "exit_plan": f"Book profit near Rs. {analysis['target']} or exit below Rs. {analysis['stop_loss']}.",
+        "timing_label": timing_label,
+        "timing_reason": timing_reason,
         "monthly_goal_note": monthly_goal_note,
         "coach_note": (
-            "As a beginner, use only cash equity and very small size. Avoid MTF and options until your journal shows consistency."
+            "As a beginner, use only cash equity and very small size. Avoid MTF and options until your results become consistently disciplined."
         ),
         "verdict_reason": (
             f"Decision {analysis['decision']}, score {analysis['score']}, news {analysis['news_sentiment']}, "
             f"and risk-reward {analysis['risk_reward']}."
         ),
+        "simple_output": _simple_action(analysis["decision"]),
+        "one_line_reason": f"{_simple_action(analysis['decision'])} because score is {analysis['score']} and news tone is {analysis['news_sentiment']}.",
+        "beginner_safe": analysis["price"] <= 500 and analysis["decision"] != "AVOID",
+    }
+
+
+def compare_stock_plans(symbols: list[str], capital: int = 500, risk_profile: str = "low") -> dict:
+    results = []
+    for symbol in symbols[:3]:
+        clean_symbol = normalize_symbol(symbol)
+        if not clean_symbol:
+            continue
+        try:
+            plan = get_personal_stock_plan(clean_symbol, capital=capital, risk_profile=risk_profile)
+            results.append(
+                {
+                    "symbol": plan["symbol"],
+                    "simple_output": plan["simple_output"],
+                    "one_line_reason": plan["one_line_reason"],
+                    "price": plan["price"],
+                    "suggested_qty": plan["suggested_qty"],
+                    "stop_loss": plan["stop_loss"],
+                    "target": plan["target"],
+                    "score": plan["score"],
+                    "confidence_label": plan["confidence_label"],
+                    "risk_reward": plan["risk_reward"],
+                    "timing_label": plan["timing_label"],
+                    "news_sentiment": plan["news_sentiment"],
+                    "beginner_safe": plan["beginner_safe"],
+                }
+            )
+        except Exception as exc:
+            results.append({"symbol": clean_symbol, "error": str(exc)})
+
+    valid = [item for item in results if not item.get("error")]
+    best_pick = None
+    if valid:
+        best_pick = sorted(valid, key=lambda item: (item["simple_output"] == "BUY", item["score"], item["risk_reward"]), reverse=True)[0]
+
+    return {"results": results, "best_pick": best_pick}
+
+
+def get_daily_market_summary() -> dict:
+    overview = get_market_overview()
+    under_500 = generate_beginner_ideas(budget=500, limit=5)
+    safe_pick = under_500[0] if under_500 else None
+    summary_line = (
+        f"Market mood is {overview['market_mood']}. "
+        f"Top beginner pick is {safe_pick['symbol']}." if safe_pick else f"Market mood is {overview['market_mood']}."
+    )
+    return {
+        "market_mood": overview["market_mood"],
+        "summary_line": summary_line,
+        "safe_pick": safe_pick,
+        "under_500_ideas": under_500,
+        "news_api_configured": overview["news_api_configured"],
+    }
+
+
+def compare_fno_stocks(symbols: list[str], capital: int = 500, risk_profile: str = "low") -> dict:
+    filtered = [normalize_symbol(symbol) for symbol in symbols if normalize_symbol(symbol) in FNO_STOCKS]
+    if not filtered:
+        return {"results": [], "best_pick": None, "error": "No valid F&O stocks found in your input."}
+
+    comparison = compare_stock_plans(filtered, capital=capital, risk_profile=risk_profile)
+    if comparison["best_pick"]:
+        comparison["best_pick"]["warning"] = "F&O stocks are more volatile. Beginners should prefer cash equity."
+    return comparison
+
+
+def _mf_score(fund: dict, risk_profile: str) -> float:
+    score = 50.0
+    score += min(fund["return_3y"], 25)
+    score += min(fund["return_5y"] / 2, 15)
+    score -= fund["expense_ratio"] * 8
+    if fund["beginner_friendly"]:
+        score += 8
+
+    risk_profile = risk_profile.lower()
+    if risk_profile == "low":
+        if fund["risk_level"] == "Low-Moderate":
+            score += 10
+        elif fund["risk_level"] == "Moderate":
+            score += 6
+        else:
+            score -= 12
+    elif risk_profile == "medium":
+        if fund["risk_level"] in {"Moderate", "Low-Moderate"}:
+            score += 8
+        else:
+            score += 2
+    else:
+        if fund["risk_level"] == "High":
+            score += 10
+
+    return round(score, 2)
+
+
+def get_mutual_fund_plan(code: str, sip_amount: int = 500, risk_profile: str = "low") -> dict:
+    fund = next((item for item in MUTUAL_FUNDS if item["code"] == code), None)
+    if not fund:
+        raise ValueError("Invalid mutual fund code")
+
+    score = _mf_score(fund, risk_profile)
+    simple_output = "AVOID"
+    if fund["beginner_friendly"] and score >= 70:
+        simple_output = "GOOD FOR SIP"
+    elif score >= 60:
+        simple_output = "CONSIDER"
+
+    sip_fit = sip_amount >= fund["sip_min"]
+    beginner_mode = "YES" if fund["beginner_friendly"] and fund["risk_level"] in {"Low-Moderate", "Moderate"} else "NO"
+
+    return {
+        **fund,
+        "score": score,
+        "simple_output": simple_output,
+        "sip_amount": sip_amount,
+        "sip_fit": sip_fit,
+        "confidence_label": _confidence_label(int(min(score, 100))),
+        "beginner_mode": beginner_mode,
+        "one_line_reason": f"{simple_output} because category is {fund['category']}, risk is {fund['risk_level']}, and 3Y return is {fund['return_3y']}%.",
+        "entry_plan": f"Start SIP with Rs. {max(sip_amount, fund['sip_min'])} if it matches your long-term goal.",
+        "exit_plan": "Mutual funds are usually for long-term holding, not quick buy-sell trading.",
+    }
+
+
+def compare_mutual_funds(codes: list[str], sip_amount: int = 500, risk_profile: str = "low") -> dict:
+    results = []
+    for code in codes[:3]:
+        clean = code.strip().upper()
+        if not clean:
+            continue
+        try:
+            results.append(get_mutual_fund_plan(clean, sip_amount=sip_amount, risk_profile=risk_profile))
+        except Exception as exc:
+            results.append({"code": clean, "error": str(exc)})
+
+    valid = [item for item in results if not item.get("error")]
+    best_pick = None
+    if valid:
+        best_pick = sorted(valid, key=lambda item: (item["simple_output"] == "GOOD FOR SIP", item["score"]), reverse=True)[0]
+    return {"results": results, "best_pick": best_pick}
+
+
+def get_beginner_mutual_funds(sip_amount: int = 500) -> dict:
+    funds = [get_mutual_fund_plan(item["code"], sip_amount=sip_amount, risk_profile="low") for item in MUTUAL_FUNDS if item["beginner_friendly"]]
+    funds.sort(key=lambda item: item["score"], reverse=True)
+    return {"sip_amount": sip_amount, "results": funds[:4]}
+
+
+def suggest_stock_vs_mutual_fund(symbol: str, capital: int = 500, risk_profile: str = "low") -> dict:
+    stock_plan = get_personal_stock_plan(symbol, capital=capital, risk_profile=risk_profile)
+    beginner_funds = get_beginner_mutual_funds(sip_amount=capital)["results"]
+    best_fund = beginner_funds[0] if beginner_funds else None
+
+    choice = "STOCK"
+    why = "You can consider a small cash-equity position because the stock setup is acceptable."
+    if risk_profile == "low" or stock_plan["simple_output"] == "AVOID" or stock_plan["confidence_label"] == "Low":
+        choice = "MUTUAL FUND"
+        why = "Your risk is lower, so SIP-style mutual fund investing is safer than direct stock trading."
+    elif stock_plan["simple_output"] == "WAIT":
+        choice = "MUTUAL FUND"
+        why = "Stock setup is not clear right now, so mutual fund SIP is the steadier option."
+
+    return {
+        "stock_plan": stock_plan,
+        "mutual_fund_pick": best_fund,
+        "suggestion": choice,
+        "why": why,
     }
 
 
