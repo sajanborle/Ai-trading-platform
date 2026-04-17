@@ -18,6 +18,8 @@ from bot import (
     get_news_for_symbol,
     get_option_contract_suggestions,
     get_personal_stock_plan,
+    search_symbols,
+    search_mutual_funds,
     get_stock_list,
     get_token,
     suggest_stock_vs_mutual_fund,
@@ -53,6 +55,11 @@ def status():
 @app.get("/stocks")
 def stocks(segment: str = Query(default="all", pattern="^(all|equity|fno)$")):
     return {"results": get_stock_list(segment=segment)}
+
+
+@app.get("/symbol-search")
+def symbol_search(q: str = "", segment: str = Query(default="all", pattern="^(all|equity|fno)$"), limit: int = 8):
+    return {"results": search_symbols(q, segment=segment, limit=limit)}
 
 
 @app.get("/analyze")
@@ -128,6 +135,11 @@ def compare_mf(codes: str, sip_amount: int = 500, risk_profile: str = "low"):
 @app.get("/beginner-mutual-funds")
 def beginner_mutual_funds(sip_amount: int = 500):
     return get_beginner_mutual_funds(sip_amount=sip_amount)
+
+
+@app.get("/mutual-fund-search")
+def mutual_fund_search(q: str = "", limit: int = 8):
+    return {"results": search_mutual_funds(q, limit=limit)}
 
 
 @app.get("/stock-vs-mutual-fund")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from difflib import get_close_matches
 from functools import lru_cache
 import os
 from pathlib import Path
@@ -133,6 +134,11 @@ NEGATIVE_NEWS_WORDS = {
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 NEWS_API_URL = os.getenv("NEWS_API_URL", "https://newsapi.org/v2/everything")
+AMFI_NAV_URL = "https://www.amfiindia.com/spages/NAVAll.txt"
+
+
+def _normalize_fund_key(value: str) -> str:
+    return "".join(ch.lower() for ch in value if ch.isalnum())
 
 
 def _fallback_instruments() -> pd.DataFrame:
@@ -286,6 +292,42 @@ def get_stock_list(segment: str = "all") -> list[dict]:
             "is_fno": row["segment"] == "FNO",
         }
         for _, row in df.iterrows()
+    ]
+
+
+def search_symbols(query: str, segment: str = "all", limit: int = 8) -> list[dict]:
+    query = normalize_symbol(query) if query else ""
+    df = INSTRUMENTS.copy()
+    if segment == "fno":
+        df = df[df["symbol"].isin(FNO_STOCKS)]
+    elif segment == "equity":
+        df = df[~df["symbol"].isin(FNO_STOCKS)]
+
+    if not query:
+        rows = df.head(limit)
+        return [
+            {
+                "symbol": row["symbol"],
+                "segment": row["segment"],
+                "is_fno": row["symbol"] in FNO_STOCKS,
+            }
+            for _, row in rows.iterrows()
+        ]
+
+    exact = df[df["symbol"] == query]
+    partial = df[df["symbol"].str.contains(query, case=False, na=False)]
+    names = df["symbol"].tolist()
+    fuzzy = get_close_matches(query, names, n=limit, cutoff=0.4)
+    fuzzy_df = df[df["symbol"].isin(fuzzy)]
+    merged = pd.concat([exact, partial, fuzzy_df]).drop_duplicates(subset=["symbol"]).head(limit)
+
+    return [
+        {
+            "symbol": row["symbol"],
+            "segment": row["segment"],
+            "is_fno": row["symbol"] in FNO_STOCKS,
+        }
+        for _, row in merged.iterrows()
     ]
 
 
@@ -689,10 +731,133 @@ def _mf_score(fund: dict, risk_profile: str) -> float:
     return round(score, 2)
 
 
+@lru_cache(maxsize=1)
+def get_amfi_funds() -> list[dict]:
+    try:
+        response = requests.get(AMFI_NAV_URL, timeout=10)
+        response.raise_for_status()
+        funds = []
+        for line in response.text.splitlines():
+            parts = line.split(";")
+            if len(parts) < 5:
+                continue
+            scheme_code = parts[0].strip()
+            scheme_name = parts[3].strip()
+            nav = parts[4].strip()
+            if not scheme_code.isdigit() or not scheme_name:
+                continue
+            funds.append(
+                {
+                    "code": scheme_code,
+                    "name": scheme_name,
+                    "category": "Mutual Fund",
+                    "risk_level": "Varies",
+                    "expense_ratio": 0.0,
+                    "aum_cr": 0,
+                    "return_1y": 0.0,
+                    "return_3y": 0.0,
+                    "return_5y": 0.0,
+                    "sip_min": 500,
+                    "exit_load": "Check scheme details",
+                    "beginner_friendly": False,
+                    "why": "Live AMFI scheme match. Review scheme details before investing.",
+                    "nav": nav,
+                    "source": "AMFI",
+                }
+            )
+        return funds
+    except Exception:
+        return []
+
+
+def resolve_mutual_fund(query: str) -> dict | None:
+    query = query.strip()
+    if not query:
+        return None
+
+    upper_query = query.upper()
+    norm_query = _normalize_fund_key(query)
+
+    for fund in MUTUAL_FUNDS:
+        if upper_query == fund["code"] or norm_query == _normalize_fund_key(fund["name"]):
+            return fund
+
+    for fund in MUTUAL_FUNDS:
+        if norm_query in _normalize_fund_key(fund["name"]) or norm_query in _normalize_fund_key(fund["code"]):
+            return fund
+
+    choices = {fund["name"]: fund for fund in MUTUAL_FUNDS}
+    fuzzy = get_close_matches(query, list(choices.keys()), n=1, cutoff=0.55)
+    if fuzzy:
+        return choices[fuzzy[0]]
+
+    amfi_funds = get_amfi_funds()
+    for fund in amfi_funds:
+        if upper_query == fund["code"] or norm_query == _normalize_fund_key(fund["name"]):
+            return fund
+
+    for fund in amfi_funds:
+        if norm_query in _normalize_fund_key(fund["name"]):
+            return fund
+
+    amfi_choices = {fund["name"]: fund for fund in amfi_funds}
+    fuzzy_amfi = get_close_matches(query, list(amfi_choices.keys()), n=1, cutoff=0.6)
+    if fuzzy_amfi:
+        return amfi_choices[fuzzy_amfi[0]]
+
+    return None
+
+
+def search_mutual_funds(query: str, limit: int = 8) -> list[dict]:
+    query = query.strip()
+    if not query:
+        curated = MUTUAL_FUNDS[:limit]
+        return [{"code": fund["code"], "name": fund["name"], "source": "Curated"} for fund in curated]
+
+    norm_query = _normalize_fund_key(query)
+    merged = MUTUAL_FUNDS + get_amfi_funds()
+    seen: set[str] = set()
+    matches: list[dict] = []
+
+    for fund in merged:
+        key = f"{fund['code']}::{fund['name']}"
+        if key in seen:
+            continue
+        name_key = _normalize_fund_key(fund["name"])
+        code_key = _normalize_fund_key(fund["code"])
+        if norm_query in name_key or norm_query in code_key:
+            matches.append(
+                {
+                    "code": fund["code"],
+                    "name": fund["name"],
+                    "source": fund.get("source", "Curated"),
+                }
+            )
+            seen.add(key)
+        if len(matches) >= limit:
+            break
+
+    if matches:
+        return matches[:limit]
+
+    names = {fund["name"]: fund for fund in merged}
+    fuzzy = get_close_matches(query, list(names.keys()), n=limit, cutoff=0.5)
+    for name in fuzzy:
+        fund = names[name]
+        matches.append(
+            {
+                "code": fund["code"],
+                "name": fund["name"],
+                "source": fund.get("source", "Curated"),
+            }
+        )
+    return matches[:limit]
+
+
 def get_mutual_fund_plan(code: str, sip_amount: int = 500, risk_profile: str = "low") -> dict:
-    fund = next((item for item in MUTUAL_FUNDS if item["code"] == code), None)
+    fund = resolve_mutual_fund(code)
     if not fund:
-        raise ValueError("Invalid mutual fund code")
+        raise ValueError("Mutual fund not found. Type full name, partial name, or valid code.")
 
     score = _mf_score(fund, risk_profile)
     simple_output = "AVOID"
@@ -712,6 +877,7 @@ def get_mutual_fund_plan(code: str, sip_amount: int = 500, risk_profile: str = "
         "sip_fit": sip_fit,
         "confidence_label": _confidence_label(int(min(score, 100))),
         "beginner_mode": beginner_mode,
+        "display_code": fund["code"],
         "one_line_reason": f"{simple_output} because category is {fund['category']}, risk is {fund['risk_level']}, and 3Y return is {fund['return_3y']}%.",
         "entry_plan": f"Start SIP with Rs. {max(sip_amount, fund['sip_min'])} if it matches your long-term goal.",
         "exit_plan": "Mutual funds are usually for long-term holding, not quick buy-sell trading.",
@@ -721,7 +887,7 @@ def get_mutual_fund_plan(code: str, sip_amount: int = 500, risk_profile: str = "
 def compare_mutual_funds(codes: list[str], sip_amount: int = 500, risk_profile: str = "low") -> dict:
     results = []
     for code in codes[:3]:
-        clean = code.strip().upper()
+        clean = code.strip()
         if not clean:
             continue
         try:
