@@ -1,0 +1,38 @@
+{
+  "paper_cash": 5000.9,
+  "positions": [],
+  "closed_trades": [
+    {
+      "id": "0dad0550-9f3b-43ee-923a-34c857745cd5",
+      "symbol": "AMBUJACEM",
+      "qty": 1,
+      "entry_price": 458.7,
+      "exit_price": 459.6,
+      "entry_time": "2026-04-16T15:29:16",
+      "exit_time": "2026-04-17T14:38:39",
+      "pnl": 0.9,
+      "pnl_pct": 0.2,
+      "lesson": "Target hit / stop-loss / learning exit"
+    }
+  ],
+  "journal": [
+    {
+      "id": "31421fa7-2d01-4248-92af-8a0d9fd3e6ac",
+      "type": "BUY",
+      "symbol": "AMBUJACEM",
+      "qty": 1,
+      "price": 458.7,
+      "note": "Paper buy executed for learning.",
+      "created_at": "2026-04-16T15:29:16"
+    },
+    {
+      "id": "b95f70c6-3ed1-4adf-968b-c36daca5d27c",
+      "type": "SELL",
+      "symbol": "AMBUJACEM",
+      "qty": 1,
+      "price": 459.6,
+      "note": "Target hit / stop-loss / learning exit",
+      "created_at": "2026-04-17T14:38:39"
+    }
+  ]
+}

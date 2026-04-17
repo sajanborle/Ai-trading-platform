@@ -1,241 +1,290 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Trading Dashboard</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Stock Coach</title>
     <style>
+        :root {
+            --bg: #0a1421;
+            --panel: rgba(13, 25, 43, 0.92);
+            --line: rgba(140, 184, 255, 0.18);
+            --text: #edf4ff;
+            --muted: #9db0ca;
+            --green: #28d08a;
+            --amber: #f0b74a;
+            --red: #ff6b6b;
+            --blue: #79b8ff;
+            --shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            text-align: center;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(40, 208, 138, 0.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(121, 184, 255, 0.18), transparent 30%),
+                linear-gradient(135deg, #07101b, #0b1727 55%, #09121e);
         }
 
-        h1, h2, h3 {
-            margin-top: 20px;
+        .shell {
+            width: min(980px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 40px;
         }
 
-        table {
-            margin: auto;
-            margin-top: 20px;
-            border-collapse: collapse;
-            width: 75%;
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 26px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
         }
 
-        th, td {
-            padding: 12px;
-            border: 1px solid #333;
+        .hero {
+            padding: 28px;
+            margin-bottom: 18px;
         }
 
-        th {
-            background: #1e293b;
+        .eyebrow {
+            display: inline-flex;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(121, 184, 255, 0.12);
+            color: var(--blue);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        tr:nth-child(even) {
-            background: #1e293b;
+        h1 {
+            margin: 16px 0 10px;
+            font-size: clamp(30px, 5vw, 52px);
+            line-height: 1.05;
         }
 
-        .buy { color: lime; font-weight: bold; }
-        .sell { color: red; font-weight: bold; }
+        .subtext, .note {
+            color: var(--muted);
+            line-height: 1.6;
+        }
 
-        .safe { color: #22c55e; }
-        .risk { color: orange; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .coach {
+            padding: 24px;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        input, select, button {
+            width: 100%;
+            border-radius: 14px;
+            font-size: 15px;
+        }
+
+        input, select {
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+        }
 
         button {
-            padding: 8px 14px;
-            font-size: 14px;
-            background: #22c55e;
-            border: none;
+            padding: 13px 16px;
+            border: 0;
+            font-weight: 700;
             cursor: pointer;
-            border-radius: 5px;
+            color: #04111d;
+            background: linear-gradient(135deg, #28d08a, #79b8ff);
         }
 
-        button:hover {
-            background: #16a34a;
+        .card-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .best {
-            background: #065f46 !important;
+        .card {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
+
+        .card-top, .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .metric-row {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .buy { background: rgba(40, 208, 138, 0.14); color: var(--green); }
+        .watch { background: rgba(240, 183, 74, 0.14); color: var(--amber); }
+        .avoid { background: rgba(255, 107, 107, 0.14); color: var(--red); }
 
         .guide {
-            background: #1e293b;
-            padding: 10px;
-            margin: 15px;
-            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .guide-list {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (max-width: 820px) {
+            .grid, .card-grid, .guide-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="shell">
+        <section class="panel hero">
+            <div class="eyebrow">Personal Stock Coach</div>
+            <h1>Fakta ekach kaam: stock nav de, ani simple answer ghe.</h1>
+            <p class="subtext">
+                Tu beginner ahes mhanun he dashboard intentionally simple kela ahe.
+                Fakat stock analyze kar, buy karu ka wait karu ka te samajh, ani stop-loss plus target bgh.
+            </p>
+        </section>
 
-<h1>🚀 AI Trading Dashboard</h1>
+        <section class="panel coach">
+            <div class="grid">
+                <div>
+                    <label for="coachSymbol">Stock symbol</label>
+                    <input id="coachSymbol" type="text" placeholder="Example: NTPC, SUZLON, SBIN" value="NTPC">
+                </div>
+                <div>
+                    <label for="coachCapital">Capital</label>
+                    <input id="coachCapital" type="number" min="100" value="500">
+                </div>
+                <div>
+                    <label for="coachRisk">Risk profile</label>
+                    <select id="coachRisk">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button onclick="runPersonalCoach()">Analyze Stock</button>
+                </div>
+            </div>
+        </section>
 
-<div class="guide">
-    <h3>📘 Beginner Guide</h3>
-    <p>
-        🟢 BUY → Price may go UP<br>
-        🔴 SELL → Price may go DOWN<br>
-        ✅ Trade only if Confidence > 75%<br>
-        ⚠️ Always use Stop Loss<br>
-    </p>
-</div>
+        <section id="personalCoachPanel" class="card-grid">
+            <div class="card">Analysis loading...</div>
+        </section>
 
-<button onclick="loadData()">Refresh Signals</button>
-<button onclick="loadBacktest()">Check Accuracy</button>
+        <section class="panel guide" style="margin-top:18px;">
+            <h2 style="margin-top:0;">Beginner Rules</h2>
+            <div class="guide-list">
+                <div class="card">
+                    <div style="font-size:18px;font-weight:700;">1. Buy only if plan is clear</div>
+                    <div class="note" style="margin-top:10px;">Entry, stop-loss, target he tin goshti kalya shivay buy nako.</div>
+                </div>
+                <div class="card">
+                    <div style="font-size:18px;font-weight:700;">2. Start small</div>
+                    <div class="note" style="margin-top:10px;">Pahilyanda 1 small quantity ne start kar. Learning first, profit later.</div>
+                </div>
+                <div class="card">
+                    <div style="font-size:18px;font-weight:700;">3. Avoid shortcuts</div>
+                    <div class="note" style="margin-top:10px;">MTF, options, heavy intraday beginner sathi nako. Cash equity best.</div>
+                </div>
+            </div>
+        </section>
+    </div>
 
-<!-- 🔥 SIGNAL TABLE -->
-<table>
-    <thead>
-        <tr>
-            <th>Stock</th>
-            <th>Price</th>
-            <th>RSI</th>
-            <th>Signal</th>
-            <th>Confidence</th>
-            <th>Quality</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="table-body"></tbody>
-</table>
+    <script>
+        function decisionClass(decision) {
+            if (decision === "STRONG BUY" || decision === "BUY" || decision === "BUY SMALL") return "buy";
+            if (decision === "WATCH" || decision === "WAIT") return "watch";
+            return "avoid";
+        }
 
-<!-- 🔥 BACKTEST -->
-<h2>📊 AI Accuracy</h2>
-<p id="backtest-result">Click "Check Accuracy"</p>
+        function renderPersonalCoach(data) {
+            const panel = document.getElementById("personalCoachPanel");
+            if (data.error) {
+                panel.innerHTML = `<div class="card">${data.error}</div>`;
+                return;
+            }
 
-<!-- 🔥 TOTAL PnL -->
-<h2>💰 Total PnL: <span id="total-pnl">₹0</span></h2>
+            panel.innerHTML = `
+                <div class="card">
+                    <div class="card-top">
+                        <div>
+                            <div style="font-size:24px;font-weight:700;">${data.symbol}</div>
+                            <div class="note" style="margin-top:6px;">${data.recommendation}</div>
+                        </div>
+                        <span class="pill ${decisionClass(data.recommendation)}">${data.decision}</span>
+                    </div>
+                    <div class="metric-row"><span>Current price</span><strong>₹${data.price}</strong></div>
+                    <div class="metric-row"><span>Suggested quantity</span><strong>${data.suggested_qty}</strong></div>
+                    <div class="metric-row"><span>Capital / Risk profile</span><strong>₹${data.capital} / ${data.risk_profile}</strong></div>
+                    <div class="metric-row"><span>Stop-loss</span><strong>₹${data.stop_loss}</strong></div>
+                    <div class="metric-row"><span>Target</span><strong>₹${data.target}</strong></div>
+                    <div class="metric-row"><span>Risk-reward</span><strong>${data.risk_reward}</strong></div>
+                    <div class="metric-row"><span>News sentiment</span><strong>${data.news_sentiment}</strong></div>
+                </div>
+                <div class="card">
+                    <div style="font-size:18px;font-weight:700;">Why this decision?</div>
+                    <div class="note" style="margin-top:10px;">${data.verdict_reason}</div>
+                    <div class="note" style="margin-top:12px;"><strong>Entry plan:</strong> ${data.entry_plan}</div>
+                    <div class="note" style="margin-top:12px;"><strong>Exit plan:</strong> ${data.exit_plan}</div>
+                    <div class="note" style="margin-top:12px;"><strong>Coach note:</strong> ${data.coach_note}</div>
+                    <div class="note" style="margin-top:12px;"><strong>Reality check:</strong> ${data.monthly_goal_note}</div>
+                </div>
+            `;
+        }
 
-<!-- 🔥 TRADE HISTORY -->
-<h2>📊 Trade History</h2>
+        async function runPersonalCoach() {
+            const symbol = document.getElementById("coachSymbol").value.trim();
+            const capital = document.getElementById("coachCapital").value || 500;
+            const risk = document.getElementById("coachRisk").value;
 
-<table>
-    <thead>
-        <tr>
-            <th>Stock</th>
-            <th>Buy Price</th>
-            <th>Stop Loss</th>
-            <th>Target</th>
-            <th>Time</th>
-            <th>PnL</th>
-        </tr>
-    </thead>
-    <tbody id="trade-body"></tbody>
-</table>
+            if (!symbol) {
+                alert("Stock symbol tak.");
+                return;
+            }
 
-<script>
-let trades = [];
-let latestPrices = {};
+            const res = await fetch(`/personal-analysis?symbol=${encodeURIComponent(symbol)}&capital=${capital}&risk_profile=${risk}`);
+            const data = await res.json();
+            renderPersonalCoach(data);
+        }
 
-// 🔥 LOAD SIGNALS
-async function loadData() {
-    const res = await fetch('/scan');
-    const data = await res.json();
-
-    const table = document.getElementById('table-body');
-    table.innerHTML = "";
-
-    data.results.forEach((stock, index) => {
-
-        // store latest price
-        latestPrices[stock.stock] = stock.price;
-
-        const quality = stock.confidence > 80 ? "SAFE ✅" : "RISK ⚠️";
-        const qualityClass = stock.confidence > 80 ? "safe" : "risk";
-
-        const row = `
-            <tr class="${index === 0 ? 'best' : ''}">
-                <td>${stock.stock}</td>
-                <td>₹${stock.price}</td>
-                <td>${stock.rsi}</td>
-                <td class="${stock.signal.toLowerCase()}">${stock.signal}</td>
-                <td>${stock.confidence}%</td>
-                <td class="${qualityClass}">${quality}</td>
-                <td>
-                    ${stock.signal === "BUY" ? 
-                        `<button onclick="buyStock('${stock.stock}', ${stock.price})">BUY</button>` 
-                        : ""}
-                </td>
-            </tr>
-        `;
-        table.innerHTML += row;
-    });
-
-    renderTrades(); // 🔥 update PnL live
-}
-
-// 🔥 BACKTEST
-async function loadBacktest() {
-    const res = await fetch('/backtest');
-    const data = await res.json();
-
-    document.getElementById('backtest-result').innerText =
-        `Accuracy: ${data.accuracy}% | Trades: ${data.trades} | Wins: ${data.wins}`;
-}
-
-// 🔥 BUY
-function buyStock(stock, price) {
-    const stopLoss = (price * 0.99).toFixed(2);   // 1% SL
-    const target = (price * 1.02).toFixed(2);     // 2% Target
-
-    const trade = {
-        stock,
-        buyPrice: price,
-        stopLoss,
-        target,
-        pnl: 0,
-        time: new Date().toLocaleTimeString()
-    };
-
-    trades.push(trade);
-
-    alert(`✅ Bought ${stock}
-Price: ₹${price}
-SL: ₹${stopLoss}
-Target: ₹${target}`);
-
-    renderTrades();
-}
-
-// 🔥 RENDER TRADES + PnL
-function renderTrades() {
-    const table = document.getElementById('trade-body');
-    table.innerHTML = "";
-
-    let totalPnL = 0;
-
-    trades.forEach(trade => {
-        const currentPrice = latestPrices[trade.stock] || trade.buyPrice;
-
-        trade.pnl = (currentPrice - trade.buyPrice).toFixed(2);
-
-        totalPnL += parseFloat(trade.pnl);
-
-        const row = `
-            <tr>
-                <td>${trade.stock}</td>
-                <td>₹${trade.buyPrice}</td>
-                <td>₹${trade.stopLoss}</td>
-                <td>₹${trade.target}</td>
-                <td>${trade.time}</td>
-                <td class="${trade.pnl >= 0 ? 'buy' : 'sell'}">
-                    ₹${trade.pnl}
-                </td>
-            </tr>
-        `;
-        table.innerHTML += row;
-    });
-
-    document.getElementById('total-pnl').innerText = `₹${totalPnL.toFixed(2)}`;
-}
-
-// 🔥 AUTO LOAD
-loadData();
-
-// 🔥 AUTO REFRESH
-setInterval(loadData, 10000);
-</script>
-
+        runPersonalCoach();
+    </script>
 </body>
 </html>
